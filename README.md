@@ -72,14 +72,10 @@ npm start
 
 ### 3. VS Code Port Forwarding Configuration
 
-1. **Install VS Code Extensions**:
-   - Remote Development extension pack
-   - Port forwarding extension (if not included)
-
-2. **Configure Port Forwarding**:
+1. **Configure Port Forwarding**:
     - It should be found near the terminal tab
 
-3. **Make Port Public**:
+2. **Make Port Public**:
    - In the Ports panel, right-click on your forwarded port
    - Select "Port Visibility" → "Public"
    - Copy the generated public URL (e.g., `https://abc123-3000.preview.app.github.dev`)
@@ -209,4 +205,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 Janada Sroor
+
 
