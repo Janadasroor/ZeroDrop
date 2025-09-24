@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Parrot</string>
+    <string name="app_name" translatable="false">ZeroDrop</string>
     <string name="login_button">Login</string>
     <string name="register_button">Register</string>
     <string name="auth_error">Authentication Error</string>
