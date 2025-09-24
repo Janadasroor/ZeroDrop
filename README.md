@@ -35,7 +35,7 @@ A full-stack application that allows Android clients to send command line instru
 
 ### Android Requirements
 - Android Studio
-- Android SDK (API level 21+)
+- Android SDK (API level 25+)
 - Kotlin support
 
 ## 🛠️ Installation & Setup
@@ -44,13 +44,13 @@ A full-stack application that allows Android clients to send command line instru
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/zerodrop.git
+git clone https://github.com/Janadasroor/ZeroDrop.git
 cd zerodrop/server
 
 # Install dependencies
 npm install
 
-# Create environment variables file
+# Create environment variables file (Optional)
 cp .env.example .env
 
 # Edit .env with your configuration
@@ -61,35 +61,29 @@ cp .env.example .env
 # JWT_SECRET=your_jwt_secret
 # PORT=3000
 
-# Set up MySQL database
-mysql -u root -p < database/schema.sql
-
 # Start the server
 npm start
 ```
 
 ### 2. Android App Setup
 - Navigate to Android project
-- Open [text](client/ZeroDrop_Demo) in Android Studio
+- Open `client/ZeroDrop_Demo` in Android Studio
+ 
 
 ### 3. VS Code Port Forwarding Configuration
 
-1. **Install VS Code Extensions**:
-   - Remote Development extension pack
-   - Port forwarding extension (if not included)
+1. **Configure Port Forwarding**:
+    - It should be found near the terminal tab
 
-2. **Configure Port Forwarding**:
-    - It should be found near the termenal tab
-
-3. **Make Port Public**:
+2. **Make Port Public**:
    - In the Ports panel, right-click on your forwarded port
    - Select "Port Visibility" → "Public"
    - Copy the generated public URL (e.g., `https://abc123-3000.preview.app.github.dev`)
 
 ### 4. Configure Android Network Module
-
-Edit the file `app/src/main/java/com/janad/zerodrop/data/api/NetworkModule.kt`:
-
+  
+- Edit the file `app/src/main/java/com/janad/zerodrop/data/api/NetworkModule.kt`:
+- 
 ```kotlin
     // Replace with your VS Code port forwarding public URL
     private const val BASE_URL = "https://your-forwarded-url.preview.app.github.dev/"
@@ -112,7 +106,7 @@ Edit the file `app/src/main/java/com/janad/zerodrop/data/api/NetworkModule.kt`:
 // Login Request
 POST /auth/login
 {
-  "email": "user@example.com",
+  "username": "username",
   "password": "password123"
 }
 
@@ -196,21 +190,20 @@ private const val BASE_URL = "http://192.168.1.100:3000/" // Physical Device
    - Verify MySQL connection settings
    - Review server logs for detailed error messages
 
-## 🚀 Deployment
-
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+
+[![Node.js](https://img.shields.io/badge/Node.js-v18+-green)](https://nodejs.org/)
+
+
 ## 👨‍💻 Author
 
-[Janada Sroor]
+Janada Sroor
+
+
