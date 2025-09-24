@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,47 +24,40 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.janad.zerodrop.presentation.viewmodels.ViewModel
-import kotlinx.coroutines.flow.collectLatest
+import com.janad.zerodrop.data.model.RequestState
+import com.janad.zerodrop.presentation.viewmodels.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun CommandScreen(viewModel: ViewModel = hiltViewModel()) {
-    var command by remember { mutableStateOf("") }
-    var output by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
-    var isExecuting by remember { mutableStateOf(false) }
-
-    // Animation states
+fun CommandScreen(mainViewModel: MainViewModel = hiltViewModel()) {
+    var command by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf("") }
+    var isExecuting by rememberSaveable { mutableStateOf(false) }
+    val commandState by mainViewModel.commandRequestState.collectAsState()
     val buttonScale by animateFloatAsState(
         targetValue = if (isExecuting) 0.95f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
     )
 
-    val outputAlpha by animateFloatAsState(
-        targetValue = if (output.isNotEmpty() || error.isNotEmpty()) 1f else 0f,
-        animationSpec = tween(500)
-    )
 
-    // Collect state from ViewModel
-    LaunchedEffect(viewModel) {
-        viewModel.cmdResult.collectLatest { res ->
-            output = res?.output ?: ""
-            isExecuting = false
-        }
-        viewModel.cmdError.collectLatest { err ->
-            error = err
-            isExecuting = false
-        }
-    }
 
-    // Gradient background
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(
             MaterialTheme.colorScheme.surface,
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         )
     )
+
+    if(commandState is RequestState.Loading){
+        isExecuting = true
+    }
+    else if(commandState is RequestState.Success || commandState is RequestState.Error){
+        isExecuting = false
+    }
+    else if(commandState is RequestState.Error){
+        isExecuting = false
+        error = (commandState as RequestState.Error).message
+    }
 
     Box(
         modifier = Modifier
@@ -79,7 +73,6 @@ fun CommandScreen(viewModel: ViewModel = hiltViewModel()) {
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Header section with icon
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -118,7 +111,6 @@ fun CommandScreen(viewModel: ViewModel = hiltViewModel()) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Command input section
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -154,12 +146,10 @@ fun CommandScreen(viewModel: ViewModel = hiltViewModel()) {
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Execute button with animation
                     Button(
                         onClick = {
                             if (command.isNotBlank()) {
-                                isExecuting = true
-                                viewModel.executeCommand(command)
+                                mainViewModel.executeCommand(command)
                             }
                         },
                         enabled = command.isNotBlank() && !isExecuting,
@@ -217,7 +207,7 @@ fun CommandScreen(viewModel: ViewModel = hiltViewModel()) {
 
             // Output section with animation
             AnimatedVisibility(
-                visible = output.isNotEmpty() || error.isNotEmpty(),
+                visible = commandState is RequestState.Success || commandState is RequestState.Error,
                 enter = slideInVertically(
                     initialOffsetY = { it },
                     animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
@@ -278,17 +268,16 @@ fun CommandScreen(viewModel: ViewModel = hiltViewModel()) {
                                     )
                                     .padding(16.dp)
                             ) {
-                                Text(
-                                    text = if (error.isNotEmpty()) error else output,
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 13.sp,
-                                    lineHeight = 18.sp,
-                                    color = if (error.isNotEmpty())
-                                        MaterialTheme.colorScheme.error
-                                    else
-                                        MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                              if(commandState is RequestState.Success){
+                                  Text(
+                                      text = (commandState as RequestState.Success).message,
+                                      fontFamily = FontFamily.Monospace,
+                                      fontSize = 13.sp,
+                                      lineHeight = 18.sp,
+                                      color =  MaterialTheme.colorScheme.onSurface,
+                                      modifier = Modifier.fillMaxWidth()
+                                  )
+                              }
                             }
                         }
                     }

@@ -3,6 +3,10 @@ package com.janad.zerodrop.data.repositories
 import com.janad.zerodrop.data.api.ApiService
 import com.janad.zerodrop.data.api.LoginReq
 import com.janad.zerodrop.data.api.LoginRes
+import com.janad.zerodrop.data.api.LogoutReq
+import com.janad.zerodrop.data.api.LogoutRes
+import com.janad.zerodrop.data.api.RefreshReq
+import com.janad.zerodrop.data.api.RefreshRes
 import com.janad.zerodrop.data.api.RegisterReq
 import com.janad.zerodrop.data.api.RegisterRes
 import retrofit2.Response
@@ -22,15 +26,21 @@ class AuthRepository @Inject constructor(private val api: ApiService){
     /**
      * Performs a login request to the API.
      *
-     * @param username The username of the user.
+     * @param email The email of the user.
      * @param password The password of the user.
      * @return A [Response] object containing the [LoginRes] if the request is successful, or an error otherwise.
      */
-    suspend fun  login( username:String ,password:String): Response<LoginRes> {
-       return  api.login(LoginReq(username,password))
+    suspend fun  login(email:String, password:String): Response<LoginRes> {
+        return  api.login(LoginReq(email, password))
     }
     // This function is currently unused but might be used in the future for registration functionality.
-  suspend fun  register(username:String, password:String): Response<RegisterRes> {
-       return  api.register(RegisterReq(username,password))
+    suspend fun  register(email:String, password:String): Response<RegisterRes> {
+        return  api.register(RegisterReq(email, password))
+    }
+    suspend fun logout(refreshToken: String): Response<LogoutRes> {
+        return api.logout(LogoutReq(refreshToken))
+    }
+    fun refreshToken(refreshToken: String): Response<RefreshRes> {
+        return api.refreshToken(RefreshReq(refreshToken))
     }
 }

@@ -7,38 +7,44 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
-private val Context.dataStore by preferencesDataStore(name = "user_prefs")
+val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 class UserPreferences(private val context: Context) {
 
     companion object {
-        val TOKEN_KEY = stringPreferencesKey("auth_token")
-        val USERNAME_KEY = stringPreferencesKey("username")
+        val REF_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        val ACC_TOKEN_KEY = stringPreferencesKey("access_token")
+
+        val EMAIL_KEY = stringPreferencesKey("email")
+
     }
 
-    // Save login info (username + token)
-    suspend fun saveLoginInfo(username: String, token: String) {
+    suspend fun saveRefreshToken(token: String) {
         context.dataStore.edit { prefs ->
-            prefs[USERNAME_KEY] = username
-            prefs[TOKEN_KEY] = token
+            prefs[REF_TOKEN_KEY] = token
         }
     }
-
-    // Get saved username
-    //You can implement it later
-    val usernameFlow: Flow<String?> = context.dataStore.data.map { prefs ->
-        prefs[USERNAME_KEY]
-    }
+      suspend fun saveAccessToken(token: String) {
+            context.dataStore.edit { prefs ->
+                prefs[ACC_TOKEN_KEY] = token
+            }
+        }
 
     // Get saved token
     val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
-        prefs[TOKEN_KEY]
+        prefs[ACC_TOKEN_KEY]
     }
-    suspend fun getToken(): String? {
+    suspend fun getAccessToken(): String? {
         return tokenFlow.first()
     }
-
+    val refreshTokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[REF_TOKEN_KEY]
+    }
+    suspend fun getRefreshToken(): String? {
+        return refreshTokenFlow.first()
+    }
     // Clear login info (logout)
     suspend fun clearLoginInfo() {
         context.dataStore.edit { prefs ->
@@ -46,3 +52,6 @@ class UserPreferences(private val context: Context) {
         }
     }
 }
+
+fun UserPreferences.getAccessTokenBlocking(): String? = runBlocking { getAccessToken() }
+fun UserPreferences.getRefreshTokenBlocking(): String? = runBlocking { getRefreshToken() }

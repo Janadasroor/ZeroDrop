@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,11 +58,10 @@ fun TopBar(
     onShowQueryScreenChange: (Boolean) -> Unit,
     onToggleTheme: ()-> Unit
 ) {
-    var darkTheme by remember { mutableStateOf(false) }
+    var darkTheme by rememberSaveable { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
-    // Animation for the sliding indicator
     val indicatorOffset by animateFloatAsState(
         targetValue = if (showQueryScreen) 1f else 0f,
         animationSpec = spring(
@@ -70,7 +70,7 @@ fun TopBar(
         )
     )
 
-    // Scale animations for buttons
+
     val commandScale by animateFloatAsState(
         targetValue = if (!showQueryScreen) 1.02f else 0.98f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
@@ -84,7 +84,6 @@ fun TopBar(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Header with gradient background
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -96,7 +95,6 @@ fun TopBar(
             Column(
                 modifier = Modifier.padding(24.dp)
             ) {
-                // App title
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -129,11 +127,9 @@ fun TopBar(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // Custom Tab Selector
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Background container
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),

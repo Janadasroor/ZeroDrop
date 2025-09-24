@@ -3,32 +3,46 @@ package com.janad.zerodrop.data.api
 import okhttp3.Interceptor
 import okhttp3.Response
 
-// AuthInterceptor class to add authorization token to requests
+
 class AuthInterceptor(
-    private val tokenProvider: () -> String?
+    private val tokenProvider: () -> String?,            // get current access token
+    private val refreshTokenProvider: () -> String?,     // get current refresh token
+    private val onNewAccessToken: (String) -> Unit,      // save new access token in ViewModel/UserPreferences
+    private val refreshCall: (String) -> retrofit2.Call<RefreshRes> // a blocking call to refresh token
 ) : Interceptor {
-    // Intercepts the request and adds authorization token if available
+    private val refreshLock = Any()
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
+        val originalRequest = chain.request()
 
-        // Exclude login and register endpoints from token addition
-        // Skip adding token for login/register endpoints
-        val path = request.url.encodedPath
-        if (path.contains("login") || path.contains("register")) {
-            return chain.proceed(request)
-        }
-
-        // Otherwise, add the token
-        // Retrieve token using tokenProvider
+        // add token normally (no synchronized)
         val token = tokenProvider()
-        val newRequest = if (!token.isNullOrEmpty()) {
-            request.newBuilder()
-                .addHeader("Authorization", "Bearer $token")
-                .build()
-        } else {
-            request
-        }
+        val authRequest = if (!token.isNullOrEmpty()) {
+            originalRequest.newBuilder().addHeader("Authorization", "Bearer $token").build()
+        } else originalRequest
 
-        return chain.proceed(newRequest)
+        var response = chain.proceed(authRequest)
+
+        if (response.code == 401 || response.code == 403) {
+            response.close()
+            val refreshToken = refreshTokenProvider()
+            if (!refreshToken.isNullOrEmpty()) {
+                synchronized(refreshLock) {  // only lock refresh section
+                    val newToken = try {
+                        val refreshResponse = refreshCall(refreshToken).execute()
+                        refreshResponse.body()?.accessToken ?: ""
+                    } catch (_: Exception) { "" }
+
+                    if (newToken.isNotEmpty()) {
+                        onNewAccessToken(newToken)
+                        val newRequest = originalRequest.newBuilder()
+                            .header("Authorization", "Bearer $newToken")
+                            .build()
+                        response = chain.proceed(newRequest)
+                    }
+                }
+            }
+        }
+        return response
     }
 }
+
