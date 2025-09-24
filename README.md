@@ -53,13 +53,13 @@ npm install
 # Create environment variables file (Optional)
 cp .env.example .env
 
-# Edit .env with your configuration
+# Make .env file in server folder (important) with your configuration
 # DB_HOST=localhost
 # DB_USER=your_mysql_user
-# DB_PASSWORD=your_mysql_password
+# DB_PASS=your_mysql_password
 # DB_NAME=zerodrop
-# JWT_SECRET=your_jwt_secret
-# PORT=3000
+# ACCESS_TOKEN_SECRET=make_strong_one
+# REFRESH_TOKEN_SECRET=make_strong_one
 
 # Start the server
 npm start
@@ -106,7 +106,7 @@ npm start
 // Login Request
 POST /auth/login
 {
-  "username": "username",
+  "email": "email",
   "password": "password123"
 }
 
@@ -140,7 +140,7 @@ app/src/main/java/com/janad/zerodrop/
 
 ### For Server Development:
 1. Make code changes
-2. Server automatically updates 
+2. Server automatically reloads on code changes 
 3. Port forwarding automatically updates
 
 ### For Android Development:
@@ -160,12 +160,12 @@ private const val BASE_URL = "https://your-production-server.com/"
 private const val BASE_URL = "http://10.0.2.2:3000/" // Android Emulator
 // or
 private const val BASE_URL = "http://192.168.1.100:3000/" // Physical Device
-//This is your devlopment machine ip on the same local network http://192.168.1.100
+//This is your development machine ip on the same local network http://192.168.1.100
 ```
 
 ## 🔒 Security Considerations
 
-- JWT tokens will never expire 
+- JWT access token refreshing every 5 minutes
 - All API endpoints (except auth) require valid authentication
 - Command execution is logged and monitored
 - Database queries are parameterized to prevent SQL injection
@@ -205,5 +205,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 Janada Sroor
+
 
 
